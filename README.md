@@ -150,6 +150,17 @@ python building_analysis.py --dbname osm_3ddata_analysis --user postgres --debug
 
  `export_buildings.sh`は、GISデータとして出力したい場合に使用します。
 
+### 8.1 概要
+
+- GeoParquet固有の最適設定
+  - `OGR_PARQUET_GEOMETRY_ENCODING WKB` - バイナリ形式で地理情報を保存（効率的）
+  - `OGR_PARQUET_GEOMETRY_NAME geom` - 地理情報カラム名の指定
+  - `COMPRESSION=ZSTD` - 高性能なZSTD圧縮アルゴリズムを使用
+  - `ZSTD_COMPRESSION_LEVEL=3` - 圧縮率と速度のバランスが良いレベル
+- 注意事項：GeoParquet形式を使用するには、GDAL 3.5以上が必要です。古いバージョンではサポートされていない可能性があります。
+
+### 8.2 実行方法
+
 ```bash
 # 基本的な使用法（デフォルトでGeoPackage形式）
 ./export_buildings.sh

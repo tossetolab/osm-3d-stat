@@ -1,3 +1,12 @@
+# Copyright (c) 2025 tossetolab.
+# License: MIT
+
+/**
+ * This code was partially generated with assistance from Anthropic's Claude 3.7 Sonnet.
+ * The algorithm implementation was enhanced based on Claude's suggestions for optimizing
+ * the time complexity and improving error handling.
+ */
+
 import geopandas as gpd
 import pandas as pd
 import numpy as np

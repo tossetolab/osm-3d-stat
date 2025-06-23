@@ -175,5 +175,5 @@ python building_analysis.py --dbname osm_3ddata_analysis --user postgres --debug
 ```
 
 ## 9. クレジット
-* 本研究は、JSPS科研費（22K18505・23K22036・24K15662）の助成を受けて行いました。
+* 本研究は、JSPS科研費（22K18505, 24K21643, 24K15662）の助成を受けて行いました。
 * 本ドキュメントは，Calude 3.7 Sonnetを利用して作成しました。

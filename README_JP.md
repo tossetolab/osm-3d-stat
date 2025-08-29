@@ -176,4 +176,5 @@ python building_analysis.py --dbname osm_3ddata_analysis --user postgres --debug
 
 ## 9. クレジット
 * 本研究は、JSPS科研費（22K18505, 24K21643, 24K15662）の助成を受けて行いました。
-* 本ドキュメントは，Calude 3.7 Sonnetを利用して作成しました。
+* Seto, T.: Analysis of Building 3D Attribute Coverage and Spatial Disparity of Editing Activities in OpenStreetMap, International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences, 1–7, 2025.
+* 本ドキュメントは，Calude Sonnet 4を利用して作成しました。

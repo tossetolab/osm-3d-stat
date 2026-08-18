@@ -22,7 +22,7 @@ warnings.filterwarnings('ignore')
 class DBConfig:
     """データベース接続設定"""
     dbname: str = 'osm_3ddata_analysis'
-    user: str = 'andersen'
+    user: str = 'postgres'
     password: str = ''
     host: str = 'localhost'
     port: str = '5432'

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# This code was partially generated with assistance from Anthropic's Claude 3.7 Sonnet.
-# The algorithm implementation was enhanced based on Claude's suggestions for optimizing
+# This code was partially generated with assistance from Anthropic Claude 3.7 Sonnet.
+# The algorithm implementation was enhanced based on Claude suggestions for optimizing
 # the time complexity and improving error handling.
 
 # Copyright (c) 2025 tossetolab.

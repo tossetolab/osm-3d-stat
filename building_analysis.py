@@ -482,6 +482,62 @@ class BuildingDataAnalyzer:
 
         return result
 
+    def get_yearly_building_activity(self) -> pd.DataFrame:
+        """年別の建物編集活動を分析（厳密な年別アクティブ貢献者数を算出）
+
+        月別の unique_editors を単純合計すると同一編集者が重複カウントされるため、
+        年単位で GROUP BY して COUNT(DISTINCT uid) を直接集計する。
+        """
+        query = """
+        WITH yearly_edits AS (
+            SELECT
+                DATE_TRUNC('year', timestamp) as year,
+                COUNT(*) as total_edits,
+                COUNT(DISTINCT uid) as unique_editors,
+                COUNT(DISTINCT prefcode) as active_prefectures,
+                COUNT(DISTINCT citycode) as active_cities,
+                COUNT(CASE WHEN height IS NOT NULL THEN 1 END) as height_edits,
+                COUNT(CASE WHEN building_levels IS NOT NULL THEN 1 END) as levels_edits,
+                COUNT(DISTINCT building_type) as building_types,
+                MIN(timestamp) as first_edit,
+                MAX(timestamp) as last_edit
+            FROM building_history
+            GROUP BY DATE_TRUNC('year', timestamp)
+        )
+        SELECT
+            EXTRACT(YEAR FROM year)::int as year,
+            total_edits,
+            unique_editors,
+            active_prefectures,
+            active_cities,
+            height_edits,
+            levels_edits,
+            building_types,
+            first_edit,
+            last_edit,
+            LAG(total_edits) OVER (ORDER BY year) as prev_year_edits,
+            CASE
+                WHEN LAG(total_edits) OVER (ORDER BY year) > 0
+                THEN ((total_edits - LAG(total_edits) OVER (ORDER BY year))::float /
+                    LAG(total_edits) OVER (ORDER BY year) * 100)::numeric(10,2)
+                ELSE NULL
+            END as growth_rate_percent,
+            ROUND(height_edits::numeric / total_edits::numeric * 100, 2) as height_coverage_percent,
+            ROUND(levels_edits::numeric / total_edits::numeric * 100, 2) as levels_coverage_percent
+        FROM yearly_edits
+        ORDER BY year
+        """
+
+        if self.debug:
+            print("🔍 Analyzing yearly building activity...")
+
+        result = self.execute_query(query)
+
+        if self.debug:
+            print(f"✅ Analyzed activity for {len(result)} years")
+
+        return result
+
     def analyze_prefecture_building_patterns(self) -> pd.DataFrame:
         """都道府県別の建物データとその詳細を分析"""
         query = """
@@ -792,6 +848,15 @@ class BuildingDataAnalyzer:
             monthly_activity.to_csv(output_file, index=False)
             print(f"✅ Saved to {output_file}")
 
+            # 6-2. 年別活動分析（厳密な年別アクティブ貢献者数）
+            print("\n🔍 Analyzing yearly activity...")
+            yearly_activity = self.get_yearly_building_activity()
+            output_file = (
+                f"{output_dir}/{output_prefix}_yearly_activity_{timestamp}.csv"
+            )
+            yearly_activity.to_csv(output_file, index=False)
+            print(f"✅ Saved to {output_file}")
+
             # 7. 都道府県別建物分析
             print("\n🔍 Analyzing prefecture building patterns...")
             prefecture_analysis = self.analyze_prefecture_building_patterns()
@@ -894,6 +959,21 @@ class BuildingDataAnalyzer:
                     growth = latest_month["growth_rate_percent"]
                     trend = "⬆️" if growth > 0 else "⬇️" if growth < 0 else "➡️"
                     print(f"Monthly growth rate: {trend} {abs(growth):.1f}%")
+
+            if not yearly_activity.empty:
+                print("\nYearly Activity Summary (厳密な年別アクティブ貢献者数):")
+                for _, yr in yearly_activity.iterrows():
+                    growth_str = ""
+                    if not pd.isna(yr["growth_rate_percent"]):
+                        growth = yr["growth_rate_percent"]
+                        trend = "⬆️" if growth > 0 else "⬇️" if growth < 0 else "➡️"
+                        growth_str = f", growth {trend} {abs(growth):.1f}%"
+                    print(
+                        f"  {yr['year']}: edits {yr['total_edits']:,}, "
+                        f"unique editors {yr['unique_editors']:,}, "
+                        f"height coverage {yr['height_coverage_percent']:.1f}%"
+                        f"{growth_str}"
+                    )
 
             return True
 

@@ -339,7 +339,14 @@ class BuildingDataAnalyzer:
                         OR min_height IS NOT NULL
                         OR building_levels_underground IS NOT NULL
                         OR ele IS NOT NULL
-                   THEN 1 END) as "3Dbuildings_count"
+                   THEN 1 END) as "3Dbuildings_count",
+            ROUND(AVG(area_sqm)::numeric, 2) as avg_area_all_sqm,
+            ROUND(AVG(CASE WHEN height IS NOT NULL
+                        OR building_levels IS NOT NULL
+                        OR min_height IS NOT NULL
+                        OR building_levels_underground IS NOT NULL
+                        OR ele IS NOT NULL
+                   THEN area_sqm END)::numeric, 2) as avg_area_3d_sqm
         FROM building_history
         {where_clause}
         GROUP BY {group_columns}
